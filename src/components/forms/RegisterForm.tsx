@@ -13,9 +13,12 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { registerSchema, RegisterFormData } from '@/schemas/auth'
+import { useToast } from '@/hooks/useToast'
+import { registerAction } from '@/actions/auth-actions'
 
 export default function RegisterForm() {
   const router = useRouter()
+  const toast = useToast()
   const form = useForm<RegisterFormData>({
     resolver: yupResolver(registerSchema),
     mode: 'onChange',
@@ -38,26 +41,20 @@ export default function RegisterForm() {
     }
     
     try {
-      const response = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data)
-      })
-
-      const result = await response.json()
+      const result = await registerAction(data.name, data.email, data.password)
       
-      if (response.ok && result.success) {
+      if (result.success) {
+        toast.success(result.message)
         router.push('/dashboard')
         return
       }
 
-      if (!response.ok) {
-        form.setError('root', { message: result.error })
-      }
+      toast.error(result.error || result.message || 'Registration failed. Please try again.')
+      form.setError('root', { message: result.error || result.message })
     } catch (error) {
-      form.setError('root', { message: 'Registration failed' })
+      const errorMessage = 'Registration failed. Please try again.'
+      form.setError('root', { message: errorMessage })
+      toast.error(errorMessage)
     }
   }
 

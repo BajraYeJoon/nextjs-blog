@@ -13,9 +13,12 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { loginSchema, LoginFormData } from '@/schemas/auth'
+import { useToast } from '@/hooks/useToast'
+import { loginAction } from '@/actions/auth-actions'
 
 export default function LoginForm() {
   const router = useRouter()
+  const toast = useToast()
   const form = useForm<LoginFormData>({
     resolver: yupResolver(loginSchema),
     mode: 'onChange',
@@ -37,26 +40,20 @@ export default function LoginForm() {
     }
     
     try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data)
-      })
-
-      const result = await response.json()
+      const result = await loginAction(data.email, data.password)
       
-      if (response.ok && result.success) {
+      if (result.success) {
+        toast.success(result.message)
         router.push('/dashboard')
         return
       }
 
-      if (!response.ok) {
-        form.setError('root', { message: result.error })
-      }
+      toast.error(result.error || result.message || 'Login failed. Please try again.')
+      form.setError('root', { message: result.error || result.message })
     } catch (error) {
-      form.setError('root', { message: 'Login failed' })
+      const errorMessage = 'Login failed. Please try again.'
+      form.setError('root', { message: errorMessage })
+      toast.error(errorMessage)
     }
   }
 
