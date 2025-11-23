@@ -4,10 +4,9 @@ import { PopularArticlesSection } from "@/components/home/popular-articles-secti
 import type { BlogCardProps } from "@/components/blog/blog-grid";
 import { BlogPost } from "@/types/blog";
 
-// json data to our blog format
 function transformJSONPlaceholderPosts(posts: BlogPost[]): BlogCardProps[] {
   return posts.map((post: BlogPost, index: number) => ({
-    id: post.id,
+    id: Number(post.id),
     title: post.title,
     excerpt: post.body.substring(0, 100) + "...",
     body: post.body,
@@ -51,7 +50,7 @@ async function getLocalPosts(): Promise<BlogCardProps[]> {
     if (!response.ok) return [];
     const data = await response.json();
     return data.map((post: BlogPost) => ({
-      id: post.id,
+      id: Number(post.id),
       title: post.title,
       excerpt: post.body.substring(0, 100) + "...",
       body: post.body,
@@ -79,10 +78,7 @@ export default async function HomePage() {
       <PublicHeader />
 
       <main className="flex-1 space-y-16">
-        {/* Featured */}
         <FeaturedSection blogs={featuredBlogs} />
-
-        {/* Popular */}
         <PopularArticlesSection blogs={popularBlogs} />
       </main>
     </div>
