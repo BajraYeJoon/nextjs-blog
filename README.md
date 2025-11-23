@@ -1,6 +1,6 @@
 # Blog Platform
 
-A modern, full-featured blog platform built with Next.js 16, featuring server-side rendering, real-time editing, and comprehensive tooling for code quality.
+A blog platform built with Next.js 16
 
 ## Tech Stack
 
@@ -12,16 +12,6 @@ A modern, full-featured blog platform built with Next.js 16, featuring server-si
 - **Rich Text Editor**: TipTap
 - **UI Components**: Radix UI
 - **Fonts**: Inter, Source Serif 4, JetBrains Mono
-
-## Features
-
-- 📝 Create, edit, and delete blog posts
-- 🎨 Rich text editor with formatting options
-- 🖼️ Automatic banner image generation (Picsum API)
-- 📱 Responsive design with dark mode support
-- 🔍 SEO optimized with metadata and sitemap
-- 🚀 Server-side rendering for better performance
-- 🔐 Type-safe with full TypeScript support
 
 ## Development Tools
 
@@ -68,15 +58,6 @@ src/
 └── types/           # TypeScript types
 ```
 
-## Commit Convention
-
-Commits follow conventional commit format:
-```
-feat: add new feature
-fix: fix a bug
-docs: documentation changes
-refactor: code refactoring
-```
 
 ## License
 
