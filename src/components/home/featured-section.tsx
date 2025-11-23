@@ -1,14 +1,14 @@
-import Image from 'next/image'
-import { Card } from '@/components/ui/card'
-import Link from 'next/link'
-import type { BlogCardProps } from '@/components/blog/blog-grid'
+import Image from "next/image";
+import { Card } from "@/components/ui/card";
+import Link from "next/link";
+import type { BlogCardProps } from "@/components/blog/blog-grid";
 
 interface FeaturedSectionProps {
-  blogs: BlogCardProps[]
+  blogs: BlogCardProps[];
 }
 
 export function FeaturedSection({ blogs }: FeaturedSectionProps) {
-  if (blogs.length === 0) return null
+  if (blogs.length === 0) return null;
 
   return (
     <div className="featrued-container max-w-7xl mx-auto space-y-8">
@@ -26,20 +26,16 @@ export function FeaturedSection({ blogs }: FeaturedSectionProps) {
           <Link key={blog.id} href={`/blog/${blog.id}`}>
             <Card className="group relative overflow-hidden h-80 bg-muted cursor-pointer hover:shadow-lg hover:border-primary transition-all duration-300">
               {blog.image && (
-                <div className="relative size-full mx-auto">
-                  <Image
-                    src={blog.image}
-                    alt={blog.title}
-                    fill
-                    className="object-cover group-hover:scale-110 transition-transform duration-300"
-                  />
-                </div>
+                <Image
+                  src={blog.image}
+                  alt={blog.title}
+                  fill
+                  className="object-cover group-hover:scale-110 transition-transform duration-300"
+                />
               )}
 
-                {/* gradient */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
 
-              {/* content */}
               <div className="absolute inset-0 flex flex-col justify-end p-6 text-white">
                 {blog.category && (
                   <span className="text-xs font-semibold uppercase tracking-wider mb-2 opacity-90">
@@ -58,5 +54,5 @@ export function FeaturedSection({ blogs }: FeaturedSectionProps) {
         ))}
       </div>
     </div>
-  )
+  );
 }

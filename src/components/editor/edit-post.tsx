@@ -1,17 +1,15 @@
-'use client'
+"use client";
 
-import { usePosts } from '@/hooks/usePosts'
-import { PostEditor } from '@/components/editor/post-editor'
-import { useRouter } from 'next/navigation'
+import { usePostsStore } from "@/lib/posts-store";
+import { PostEditor } from "@/components/editor/post-editor";
 
 interface EditPostProps {
-  postId: string
+  postId: string;
 }
 
 export function EditPost({ postId }: EditPostProps) {
-  const router = useRouter();
-  const { posts } = usePosts();
-  const post = posts.find((p) => p.id === postId);
+  const posts = usePostsStore((state) => state.posts);
+  const post = posts.find((p) => p.id.toString() === postId);
 
-  return <PostEditor initialPost={post} mode="edit" />
+  return <PostEditor initialPost={post} mode="edit" />;
 }

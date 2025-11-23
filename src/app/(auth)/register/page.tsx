@@ -1,6 +1,12 @@
-import Link from 'next/link'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import RegisterForm from '@/components/forms/register-form'
+import Link from "next/link";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import RegisterForm from "@/components/forms/register-form";
 
 export default function RegisterPage() {
   return (
@@ -16,8 +22,10 @@ export default function RegisterPage() {
         </CardHeader>
         <CardContent>
           <RegisterForm />
-          <div className="text-center text-sm mt-4">
-            <span className="text-muted-foreground">Already have an account? </span>
+          <div className="text-center w-full text-sm my-4">
+            <span className="text-muted-foreground">
+              Already have an account?{" "}
+            </span>
             <Link href="/login" className="text-primary hover:underline">
               Sign in
             </Link>
@@ -25,5 +33,5 @@ export default function RegisterPage() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

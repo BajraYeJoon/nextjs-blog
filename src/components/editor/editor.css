@@ -1,0 +1,28 @@
+.rich-text-editor p {
+  margin: 0.5rem 0;
+  line-height: 1.5;
+}
+
+.rich-text-editor ul {
+  margin: 0.5rem 0;
+  margin-left: 1rem;
+}
+
+.rich-text-editor li {
+  margin: 0.25rem 0;
+}
+
+.rich-text-editor img {
+  max-width: 100px;
+  height: auto;
+  border-radius: 0.375rem;
+  margin: 0.5rem 0;
+}
+
+.rich-text-editor strong {
+  font-weight: 700;
+}
+
+.rich-text-editor em {
+  font-style: italic;
+}

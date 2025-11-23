@@ -1,24 +1,14 @@
-import { MetadataRoute } from 'next'
+import { MetadataRoute } from "next";
 
 export default function sitemap(): MetadataRoute.Sitemap {
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+
   return [
     {
-      url: 'https://yourdomain.com',
+      url: baseUrl,
       lastModified: new Date(),
-      changeFrequency: 'yearly',
+      changeFrequency: "daily",
       priority: 1,
     },
-    {
-      url: 'https://yourdomain.com/about',
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.8,
-    },
-    {
-      url: 'https://yourdomain.com/blog',
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.5,
-    },
-  ]
+  ];
 }

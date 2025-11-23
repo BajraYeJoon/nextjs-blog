@@ -1,9 +1,10 @@
-import { EditPost } from '@/components/editor/edit-post'
+import { EditPost } from "@/components/editor/edit-post";
 
-export default function EditPostPage({
+export default async function EditPostPage({
   params,
 }: {
-  params: { id: string }
+  params: Promise<{ id: string }>;
 }) {
-  return <EditPost postId={params.id} />
+  const { id } = await params;
+  return <EditPost postId={id} />;
 }

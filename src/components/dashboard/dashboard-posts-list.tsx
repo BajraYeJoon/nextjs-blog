@@ -1,11 +1,19 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { usePosts } from '@/hooks/usePosts'
-import { useToast } from '@/hooks/useToast'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { usePosts } from "@/hooks/usePosts";
+import { useToast } from "@/hooks/useToast";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,30 +24,79 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from '@/components/ui/alert-dialog'
-import { Loader2, Plus, Edit, Trash2, AlertCircle, Calendar, Tag } from 'lucide-react'
+} from "@/components/ui/alert-dialog";
+import {
+  Loader2,
+  Plus,
+  Edit,
+  Trash2,
+  AlertCircle,
+  Calendar,
+  Tag,
+  Search,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
+
+const POSTS_PER_PAGE = 10;
+const CATEGORIES = [
+  "all",
+  "general",
+  "technology",
+  "lifestyle",
+  "business",
+  "health",
+  "education",
+  "entertainment",
+];
 
 export function DashboardPostsList() {
-  const router = useRouter()
-  const { posts, loading, error, deletePost } = usePosts()
-  const toast = useToast()
-  const [deletingId, setDeletingId] = useState<string | number | null>(null)
+  const router = useRouter();
+  const [currentPage, setCurrentPage] = useState(1);
+  const { posts, totalPosts, loading, error, deletePost } = usePosts(
+    currentPage,
+    POSTS_PER_PAGE,
+  );
+  const toast = useToast();
+  const [deletingId, setDeletingId] = useState<string | number | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
 
+  // Debounce search query (300ms delay)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+      setCurrentPage(1);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  // Filter posts by search and category (client-side)
+  const filteredPosts = posts.filter((post) => {
+    const searchMatched =
+      post.title.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+      post.body.toLowerCase().includes(debouncedSearch.toLowerCase());
+    const categoryMatched =
+      selectedCategory === "all" || post.category === selectedCategory;
+    return searchMatched && categoryMatched;
+  });
+
+  const totalPages = Math.ceil(totalPosts / POSTS_PER_PAGE);
 
   const handleDelete = async (id: string | number) => {
-    setDeletingId(id)
+    setDeletingId(id);
     try {
-      await deletePost(id)
-      toast.success('Post deleted successfully')
-
+      await deletePost(id);
+      toast.success("Post deleted successfully");
     } catch (error) {
-      toast.error('Failed to delete post')
+      console.error("Failed to delete post:", error);
+      toast.error("Failed to delete post");
     }
-  }
+  };
 
   return (
     <>
-      
       {error && (
         <div className="mb-6 p-4 border border-destructive/50 bg-destructive/10 rounded-lg flex items-start gap-3">
           <AlertCircle className="size-5 text-destructive mt-0.5 flex-shrink-0" />
@@ -50,7 +107,6 @@ export function DashboardPostsList() {
         </div>
       )}
 
-      
       {loading && posts.length === 0 ? (
         <div className="flex items-center justify-center py-12">
           <div className="text-center">
@@ -58,100 +114,203 @@ export function DashboardPostsList() {
             <p className="text-muted-foreground">Loading posts...</p>
           </div>
         </div>
-      ) : posts.length === 0 ? (
-        <div className="text-center py-12 border border-dashed border-border rounded-lg">
-          <h3 className="text-lg font-medium text-foreground mb-2">No posts yet</h3>
-          <p className="text-muted-foreground mb-4">Create your first blog post to get started</p>
-          <Button className="gap-2" onClick={() => router.push('/posts/new')}>
-            <Plus className="size-4" />
-            Create Post
-          </Button>
-        </div>
       ) : (
-        <div className="blog-lists grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {posts.map((post) => (
-            <Card key={post.id} className="overflow-hidden hover:shadow-md transition-shadow">
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <CardTitle className="text-foreground">{post.title}</CardTitle>
-                    <CardDescription className="mt-2 line-clamp-2">
-                      {post.body.replace(/<[^>]*>/g, '').substring(0, 150)}...
-                    </CardDescription>
-                  </div>
-                </div>
-              </CardHeader>
+        <>
+          {/* Search and Filter */}
+          <div className="mb-6 space-y-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-3 size-4 text-muted-foreground" />
+              <Input
+                placeholder="Search posts..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+              />
+            </div>
 
-              <CardContent>
-                <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
-                  {post.category && (
-                    <div className="flex items-center gap-1">
-                      <Tag className="size-4" />
-                      <span className="capitalize">{post.category}</span>
-                    </div>
-                  )}
-                  {post.createdAt && (
-                    <div className="flex items-center gap-1">
-                      <Calendar className="size-4" />
-                      <span>{new Date(post.createdAt).toLocaleDateString()}</span>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-
-              <CardFooter className="bg-muted/50 border-t border-border flex gap-2">
-                <Button 
-                  variant="outline" 
-                  className="w-full gap-2 flex-1" 
-                  disabled={deletingId === post.id}
-                  onClick={() => router.push(`/posts/${post.id}`, { scroll: false })}
+            {/* Category Filter */}
+            <div className="flex flex-wrap gap-2">
+              {CATEGORIES.map((category) => (
+                <Button
+                  key={category}
+                  variant={
+                    selectedCategory === category ? "default" : "outline"
+                  }
+                  size="sm"
+                  onClick={() => {
+                    setSelectedCategory(category);
+                    setCurrentPage(1);
+                  }}
+                  className="capitalize"
                 >
-                  <Edit className="size-4" />
-                  Edit
+                  {category}
                 </Button>
+              ))}
+            </div>
+          </div>
 
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="flex-1 gap-2"
-                      disabled={deletingId === post.id}
-                    >
-                      <Trash2 className="size-4" />
-                      Delete
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Delete Post</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        Are you sure you want to delete "{post.title}"? This action cannot be undone.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction
-                        onClick={() => handleDelete(post.id)}
-                        disabled={deletingId === post.id}
-                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                      >
-                        {deletingId === post.id ? (
-                          <>
-                            <Loader2 className="size-4 animate-spin mr-2" />
-                            Deleting...
-                          </>
-                        ) : (
-                          'Delete'
+          {/* Posts Grid */}
+          {filteredPosts.length === 0 ? (
+            <div className="text-center py-12 border border-dashed border-border rounded-lg">
+              <h3 className="text-lg font-medium text-foreground mb-2">
+                No posts found
+              </h3>
+              <p className="text-muted-foreground mb-4">
+                Try adjusting your search or filters
+              </p>
+              <Button
+                className="gap-2"
+                onClick={() => router.push("/posts/new")}
+              >
+                <Plus className="size-4" />
+                Create Post
+              </Button>
+            </div>
+          ) : (
+            <>
+              <div className="blog-lists grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                {filteredPosts.map((post) => (
+                  <Card
+                    key={post.id}
+                    className="overflow-hidden hover:shadow-md transition-shadow"
+                  >
+                    <CardHeader>
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <CardTitle className="text-foreground">
+                            {post.title}
+                          </CardTitle>
+                          <CardDescription className="mt-2 line-clamp-2">
+                            {post.body.substring(0, 150)}...
+                          </CardDescription>
+                        </div>
+                      </div>
+                    </CardHeader>
+
+                    <CardContent>
+                      <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
+                        {post.category && (
+                          <div className="flex items-center gap-1">
+                            <Tag className="size-4" />
+                            <span className="capitalize">{post.category}</span>
+                          </div>
                         )}
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              </CardFooter>
-            </Card>
-          ))}
-        </div>
+                        {post.createdAt && (
+                          <div className="flex items-center gap-1">
+                            <Calendar className="size-4" />
+                            <span>
+                              {new Date(post.createdAt).toLocaleDateString()}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </CardContent>
+
+                    <CardFooter className="bg-muted/50 border-t border-border flex gap-2">
+                      <Button
+                        variant="outline"
+                        className="w-full gap-2 flex-1"
+                        disabled={deletingId === post.id}
+                        onClick={() =>
+                          router.push(`/posts/${post.id}`, { scroll: false })
+                        }
+                      >
+                        <Edit className="size-4" />
+                        Edit
+                      </Button>
+
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            variant="outline"
+                            className="flex-1 gap-2"
+                            disabled={deletingId === post.id}
+                          >
+                            <Trash2 className="size-4" />
+                            Delete
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Delete Post</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Are you sure you want to delete {post.title}? This
+                              action cannot be undone.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={() => handleDelete(post.id)}
+                              disabled={deletingId === post.id}
+                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                            >
+                              {deletingId === post.id ? (
+                                <>
+                                  <Loader2 className="size-4 animate-spin mr-2" />
+                                  Deleting...
+                                </>
+                              ) : (
+                                "Delete"
+                              )}
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </CardFooter>
+                  </Card>
+                ))}
+              </div>
+
+              {/* Pagination - API-based */}
+              {totalPages > 1 && (
+                <div className="flex items-center justify-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                    disabled={currentPage === 1 || loading}
+                  >
+                    <ChevronLeft className="size-4" />
+                  </Button>
+
+                  <div className="flex items-center gap-2">
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                      (page) => (
+                        <Button
+                          key={page}
+                          variant={currentPage === page ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => setCurrentPage(page)}
+                          disabled={loading}
+                          className="w-8"
+                        >
+                          {page}
+                        </Button>
+                      ),
+                    )}
+                  </div>
+
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() =>
+                      setCurrentPage((p) => Math.min(totalPages, p + 1))
+                    }
+                    disabled={currentPage === totalPages || loading}
+                  >
+                    <ChevronRight className="size-4" />
+                  </Button>
+                </div>
+              )}
+
+              <div className="text-center text-sm text-muted-foreground mt-4">
+                Page {currentPage} of {totalPages} • Total {totalPosts} posts
+              </div>
+            </>
+          )}
+        </>
       )}
     </>
-  )
+  );
 }
