@@ -10,7 +10,7 @@ import LoginForm from "@/components/forms/login-form";
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
+    <div className="min-h-screen flex flex-col gap-6 items-center justify-center bg-background">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold text-center">
@@ -32,6 +32,10 @@ export default function LoginPage() {
           </div>
         </CardContent>
       </Card>
+
+      <span className="text-primary/50">
+        Test Credentials: admin@test.com | Password: password
+      </span>
     </div>
   );
 }
