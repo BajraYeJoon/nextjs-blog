@@ -12,73 +12,39 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
-import { registerSchema, RegisterFormData } from '@/schemas/auth'
+import { loginSchema, LoginFormData } from '@/schemas/auth'
 import { useToast } from '@/hooks/useToast'
-import { registerAction } from '@/actions/auth-actions'
+import { loginAction } from '@/actions/auth-actions'
 
-export default function RegisterForm() {
+export default function LoginForm() {
   const router = useRouter()
   const toast = useToast()
-  const form = useForm<RegisterFormData>({
-    resolver: yupResolver(registerSchema),
+  const form = useForm<LoginFormData>({
+    resolver: yupResolver(loginSchema),
     mode: 'onChange',
     defaultValues: {
-      name: '',
       email: '',
       password: ''
     }
   })
 
-  const onSubmit = async (data: RegisterFormData) => {
-    console.log('Register form submitted with data:', data)
-    console.log('Form errors:', form.formState.errors)
-    
-    // Check if form is valid before submitting
-    const isValid = await form.trigger()
-    if (!isValid) {
-      console.log('Form validation failed')
-      return
-    }
-    
-    try {
-      const result = await registerAction(data.name, data.email, data.password)
-      
-      if (result.success) {
-        toast.success(result.message)
-        router.push('/dashboard')
-        return
-      }
+  const onSubmit = async (data: LoginFormData) => {
 
-      toast.error(result.error || result.message || 'Registration failed. Please try again.')
-      form.setError('root', { message: result.error || result.message })
-    } catch (error) {
-      const errorMessage = 'Registration failed. Please try again.'
-      form.setError('root', { message: errorMessage })
-      toast.error(errorMessage)
+
+    try {
+      const res = await loginAction(data.email, data.password)
+      toast.success(res.message)
+      router.push('/dashboard')
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Login failed.'
+      toast.error(msg)
     }
+
   }
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <FormField
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Full Name</FormLabel>
-              <FormControl>
-                <Input
-                  type="text"
-                  placeholder="John Doe"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        
         <FormField
           control={form.control}
           name="email"
@@ -88,7 +54,7 @@ export default function RegisterForm() {
               <FormControl>
                 <Input
                   type="email"
-                  placeholder="john@example.com"
+                  placeholder="admin@test.com"
                   {...field}
                 />
               </FormControl>
@@ -96,7 +62,7 @@ export default function RegisterForm() {
             </FormItem>
           )}
         />
-        
+
         <FormField
           control={form.control}
           name="password"
@@ -106,7 +72,7 @@ export default function RegisterForm() {
               <FormControl>
                 <Input
                   type="password"
-                  placeholder="Create a password"
+                  placeholder="password"
                   {...field}
                 />
               </FormControl>
@@ -122,7 +88,7 @@ export default function RegisterForm() {
         )}
 
         <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
-          {form.formState.isSubmitting ? 'Creating account...' : 'Sign up'}
+          {form.formState.isSubmitting ? 'Signing in...' : 'Sign in'}
         </Button>
       </form>
     </Form>

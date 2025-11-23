@@ -7,8 +7,8 @@ import DashboardLayout from '@/components/layout/dashboard-layout'
 export default function DashboardPage() {
   return (
     <DashboardLayout>
-      <div className="max-w-6xl mx-auto">
-        {/* Header */}
+    
+       
         <div className="mb-8 flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-foreground mb-2">My Posts</h1>
@@ -16,15 +16,15 @@ export default function DashboardPage() {
           </div>
           <Link href="/posts/create">
             <Button className="gap-2">
-              <Plus className="w-4 h-4" />
+              <Plus className="size-4" />
               New Post
             </Button>
           </Link>
         </div>
 
-        {/* Posts List - Client Component */}
+       
         <DashboardPostsList />
-      </div>
+     
     </DashboardLayout>
   )
 }

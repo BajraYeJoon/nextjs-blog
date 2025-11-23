@@ -11,7 +11,7 @@ export function FeaturedSection({ blogs }: FeaturedSectionProps) {
   if (blogs.length === 0) return null
 
   return (
-    <div className="max-w-7xl mx-auto space-y-8">
+    <div className="featrued-container max-w-7xl mx-auto space-y-8">
       <div className="space-y-2">
         <h2 className="text-2xl sm:text-3xl font-bold text-foreground">
           Featured Stories
@@ -25,7 +25,6 @@ export function FeaturedSection({ blogs }: FeaturedSectionProps) {
         {blogs.map((blog) => (
           <Link key={blog.id} href={`/blog/${blog.id}`}>
             <Card className="group relative overflow-hidden h-80 bg-muted cursor-pointer hover:shadow-lg hover:border-primary transition-all duration-300">
-              {/* Background Image */}
               {blog.image && (
                 <div className="relative size-full mx-auto">
                   <Image
@@ -37,10 +36,10 @@ export function FeaturedSection({ blogs }: FeaturedSectionProps) {
                 </div>
               )}
 
-              {/* Gradient Overlay */}
+                {/* gradient */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
 
-              {/* Content */}
+              {/* content */}
               <div className="absolute inset-0 flex flex-col justify-end p-6 text-white">
                 {blog.category && (
                   <span className="text-xs font-semibold uppercase tracking-wider mb-2 opacity-90">

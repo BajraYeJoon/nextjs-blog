@@ -12,54 +12,57 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
-import { loginSchema, LoginFormData } from '@/schemas/auth'
+import { registerSchema, RegisterFormData } from '@/schemas/auth'
 import { useToast } from '@/hooks/useToast'
-import { loginAction } from '@/actions/auth-actions'
+import { registerAction } from '@/actions/auth-actions'
 
-export default function LoginForm() {
+export default function RegisterForm() {
   const router = useRouter()
   const toast = useToast()
-  const form = useForm<LoginFormData>({
-    resolver: yupResolver(loginSchema),
+  const form = useForm<RegisterFormData>({
+    resolver: yupResolver(registerSchema),
     mode: 'onChange',
     defaultValues: {
+      name: '',
       email: '',
       password: ''
     }
   })
 
-  const onSubmit = async (data: LoginFormData) => {
-    console.log('Form submitted with data:', data)
-    console.log('Form errors:', form.formState.errors)
-    
-    // Check if form is valid before submitting
-    const isValid = await form.trigger()
-    if (!isValid) {
-      console.log('Form validation failed')
-      return
-    }
-    
-    try {
-      const result = await loginAction(data.email, data.password)
-      
-      if (result.success) {
-        toast.success(result.message)
-        router.push('/dashboard')
-        return
-      }
+  const onSubmit = async (data: RegisterFormData) => {
 
-      toast.error(result.error || result.message || 'Login failed. Please try again.')
-      form.setError('root', { message: result.error || result.message })
-    } catch (error) {
-      const errorMessage = 'Login failed. Please try again.'
-      form.setError('root', { message: errorMessage })
-      toast.error(errorMessage)
-    }
+try {
+  const result = await registerAction(data.name, data.email, data.password)
+
+  toast.success(result.message)
+  router.push('/dashboard')
+} catch (err) {
+  const message = err instanceof Error ? err.message : 'Registration failed.'
+  toast.error(message)
+}
   }
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <FormField
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Full Name</FormLabel>
+              <FormControl>
+                <Input
+                  type="text"
+                  placeholder="John Doe"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        
         <FormField
           control={form.control}
           name="email"
@@ -69,7 +72,7 @@ export default function LoginForm() {
               <FormControl>
                 <Input
                   type="email"
-                  placeholder="admin@test.com"
+                  placeholder="john@example.com"
                   {...field}
                 />
               </FormControl>
@@ -87,7 +90,7 @@ export default function LoginForm() {
               <FormControl>
                 <Input
                   type="password"
-                  placeholder="password"
+                  placeholder="Create a password"
                   {...field}
                 />
               </FormControl>
@@ -103,7 +106,7 @@ export default function LoginForm() {
         )}
 
         <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
-          {form.formState.isSubmitting ? 'Signing in...' : 'Sign in'}
+          {form.formState.isSubmitting ? 'Creating account...' : 'Sign up'}
         </Button>
       </form>
     </Form>

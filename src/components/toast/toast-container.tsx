@@ -1,8 +1,9 @@
 'use client';
 import { useEffect } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
-import { useToastStore, type Toast } from '@/lib/toast-store';
+import { useToastStore } from '@/lib/toast-store';
 import { X, CheckCircle, AlertCircle, Info, AlertTriangle } from 'lucide-react';
+import { Toast } from '@/types/toast';
 
 const toastIcons = {
   success: CheckCircle,
@@ -49,14 +50,14 @@ const ToastItem = ({ toast }: ToastItemProps) => {
       transition={{ type: 'spring', stiffness: 400, damping: 30 }}
       className={`flex items-center gap-3 px-4 py-3 rounded-lg border ${toastColors[toast.type]} shadow-lg`}
     >
-      <Icon className={`w-5 h-5 flex-shrink-0 ${iconColors[toast.type]}`} />
+      <Icon className={`size-5 flex-shrink-0 ${iconColors[toast.type]}`} />
       <p className="flex-1 text-sm font-medium">{toast.message}</p>
       <button
         onClick={() => removeToast(toast.id)}
         className="flex-shrink-0 p-1 hover:opacity-70 transition-opacity"
         aria-label="Close toast"
       >
-        <X className="w-4 h-4" />
+        <X className="size-4" />
       </button>
     </motion.div>
   );

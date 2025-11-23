@@ -1,41 +1,48 @@
 'use client'
 
 import { useState } from 'react'
-import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { usePosts } from '@/hooks/usePosts'
 import { useToast } from '@/hooks/useToast'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog'
 import { Loader2, Plus, Edit, Trash2, AlertCircle, Calendar, Tag } from 'lucide-react'
 
 export function DashboardPostsList() {
+  const router = useRouter()
   const { posts, loading, error, deletePost } = usePosts()
   const toast = useToast()
   const [deletingId, setDeletingId] = useState<string | number | null>(null)
-  const [confirmDelete, setConfirmDelete] = useState<string | number | null>(null)
+
 
   const handleDelete = async (id: string | number) => {
     setDeletingId(id)
     try {
       await deletePost(id)
       toast.success('Post deleted successfully')
-      setConfirmDelete(null)
+
     } catch (error) {
       toast.error('Failed to delete post')
-    } finally {
-      setDeletingId(null)
     }
   }
 
-  // Filter only user posts (exclude JSONPlaceholder posts)
-  const userPosts = posts.filter((p) => p.id.toString().startsWith('post-'))
-
   return (
     <>
-      {/* Error State */}
+      
       {error && (
         <div className="mb-6 p-4 border border-destructive/50 bg-destructive/10 rounded-lg flex items-start gap-3">
-          <AlertCircle className="w-5 h-5 text-destructive mt-0.5 flex-shrink-0" />
+          <AlertCircle className="size-5 text-destructive mt-0.5 flex-shrink-0" />
           <div>
             <p className="font-medium text-destructive">Error</p>
             <p className="text-sm text-destructive/80">{error}</p>
@@ -43,28 +50,26 @@ export function DashboardPostsList() {
         </div>
       )}
 
-      {/* Loading State */}
-      {loading && userPosts.length === 0 ? (
+      
+      {loading && posts.length === 0 ? (
         <div className="flex items-center justify-center py-12">
           <div className="text-center">
-            <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-primary" />
+            <Loader2 className="size-8 animate-spin mx-auto mb-4 text-primary" />
             <p className="text-muted-foreground">Loading posts...</p>
           </div>
         </div>
-      ) : userPosts.length === 0 ? (
+      ) : posts.length === 0 ? (
         <div className="text-center py-12 border border-dashed border-border rounded-lg">
           <h3 className="text-lg font-medium text-foreground mb-2">No posts yet</h3>
           <p className="text-muted-foreground mb-4">Create your first blog post to get started</p>
-          <Link href="/posts/create">
-            <Button className="gap-2">
-              <Plus className="w-4 h-4" />
-              Create Post
-            </Button>
-          </Link>
+          <Button className="gap-2" onClick={() => router.push('/posts/new')}>
+            <Plus className="size-4" />
+            Create Post
+          </Button>
         </div>
       ) : (
-        <div className="grid gap-4">
-          {userPosts.map((post) => (
+        <div className="blog-lists grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {posts.map((post) => (
             <Card key={post.id} className="overflow-hidden hover:shadow-md transition-shadow">
               <CardHeader>
                 <div className="flex items-start justify-between">
@@ -81,13 +86,13 @@ export function DashboardPostsList() {
                 <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
                   {post.category && (
                     <div className="flex items-center gap-1">
-                      <Tag className="w-4 h-4" />
+                      <Tag className="size-4" />
                       <span className="capitalize">{post.category}</span>
                     </div>
                   )}
                   {post.createdAt && (
                     <div className="flex items-center gap-1">
-                      <Calendar className="w-4 h-4" />
+                      <Calendar className="size-4" />
                       <span>{new Date(post.createdAt).toLocaleDateString()}</span>
                     </div>
                   )}
@@ -95,55 +100,53 @@ export function DashboardPostsList() {
               </CardContent>
 
               <CardFooter className="bg-muted/50 border-t border-border flex gap-2">
-                <Link href={`/posts/${post.id}/edit`} className="flex-1">
-                  <Button variant="outline" className="w-full gap-2" disabled={deletingId === post.id}>
-                    <Edit className="w-4 h-4" />
-                    Edit
-                  </Button>
-                </Link>
+                <Button 
+                  variant="outline" 
+                  className="w-full gap-2 flex-1" 
+                  disabled={deletingId === post.id}
+                  onClick={() => router.push(`/posts/${post.id}`, { scroll: false })}
+                >
+                  <Edit className="size-4" />
+                  Edit
+                </Button>
 
-                {confirmDelete === post.id ? (
-                  <div className="flex gap-2 flex-1">
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => handleDelete(post.id)}
-                      disabled={deletingId === post.id}
-                      className="flex-1 gap-2"
-                    >
-                      {deletingId === post.id ? (
-                        <>
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                          Deleting...
-                        </>
-                      ) : (
-                        <>
-                          <Trash2 className="w-4 h-4" />
-                          Confirm
-                        </>
-                      )}
-                    </Button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
                     <Button
                       variant="outline"
-                      size="sm"
-                      onClick={() => setConfirmDelete(null)}
+                      className="flex-1 gap-2"
                       disabled={deletingId === post.id}
-                      className="flex-1"
                     >
-                      Cancel
+                      <Trash2 className="size-4" />
+                      Delete
                     </Button>
-                  </div>
-                ) : (
-                  <Button
-                    variant="outline"
-                    className="flex-1 gap-2"
-                    onClick={() => setConfirmDelete(post.id)}
-                    disabled={deletingId === post.id}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                    Delete
-                  </Button>
-                )}
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Delete Post</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Are you sure you want to delete "{post.title}"? This action cannot be undone.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={() => handleDelete(post.id)}
+                        disabled={deletingId === post.id}
+                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                      >
+                        {deletingId === post.id ? (
+                          <>
+                            <Loader2 className="size-4 animate-spin mr-2" />
+                            Deleting...
+                          </>
+                        ) : (
+                          'Delete'
+                        )}
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </CardFooter>
             </Card>
           ))}

@@ -1,13 +1,5 @@
+import { Toast } from '@/types/toast';
 import { create } from 'zustand';
-
-export type ToastType = 'success' | 'error' | 'info' | 'warning';
-
-export interface Toast {
-  id: string;
-  message: string;
-  type: ToastType;
-  duration?: number;
-}
 
 interface ToastStore {
   toasts: Toast[];
@@ -23,8 +15,8 @@ export const useToastStore = create<ToastStore>((set) => ({
         ...state.toasts,
         {
           ...toast,
-          id: Math.random().toString(36).substr(2, 9),
-          duration: toast.duration || 5000,
+          id: Math.random().toString(36).substring(2, 9),
+          duration: toast.duration || 2000,
         },
       ],
     })),

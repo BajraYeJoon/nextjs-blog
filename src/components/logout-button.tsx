@@ -6,26 +6,22 @@ import { logoutAction } from '@/actions/auth-actions'
 import { useToast } from '@/hooks/useToast'
 
 export function LogoutButton() {
-  const router = useRouter()
-  const toast = useToast()
+  const router = useRouter();
+  const toast = useToast();
 
   const handleLogout = async () => {
     try {
-      const result = await logoutAction()
-      
-      if (result.success) {
-        toast.success(result.message)
-        router.push('/')
-      } else {
-        toast.error(result.error || 'Logout failed')
-      }
-    } catch (error) {
-      toast.error('Logout failed. Please try again.')
+      const res = await logoutAction();
+      toast.success(res.message);
+      router.push('/');
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Logout failed.')
     }
+
   }
 
   return (
-    <Button 
+    <Button
       onClick={handleLogout}
       variant="destructive"
       size="sm"

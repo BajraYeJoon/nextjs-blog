@@ -1,15 +1,14 @@
 export interface BlogPost {
-  id: string
+  id: string | number
   title: string
-  content: string
-  excerpt: string
-  authorId: string
-  authorName: string
-  createdAt: string
-  updatedAt: string
-  published: boolean
+  body: string
+  userId: string | number
+  category?: string
+  image?: string
+  excerpt?: string
+  createdAt?: string
+  updatedAt?: string
 }
-
 export interface CreatePostData {
   title: string
   content: string
